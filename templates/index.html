@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: black; color: white;">
+    <h1>AVP</h1>
+
+    <div>
+      {{var}}
+    </div>
+    -
+    <div>
+      <ol>
+        {%for t in test%}
+        <li>
+          {{t.match_state}} - {{t}}
+        </li>
+        {%endfor%}
+      </ol>
+    </div>
+
+    <!-- <div>
+      <ul>
+        {% for match in obj%}
+        <li>
+          <ol>
+            {{match['MatchNo']}}
+            {% for m in match %}
+            <li>
+              {{m}}
+              {{match.get(m)}}
+            </li>
+            {% endfor %}
+          </ol>
+        </li>
+        {% endfor %}
+      </ul>
+    </div> -->
+
+    <script src="https://unpkg.com/axios/dist/axios.js"></script>
+    <script src="js.js"></script>
+  </body>
+</html>
