@@ -96,6 +96,23 @@ def login_user():
       form.phone.errors = ['Incorrect phone or Password']
   return render_template('/login.html',form=form)
 
+@app.route('/logout')
+def logout_user():
+  session.pop("phone")
+  flash('you have logged out','success')
+  return redirect('/login')
+
+@app.route('/users/<phone>')
+def user_route(phone):
+  '''show user page'''
+  if 'phone' not in session:
+    # raise Unauthorized()
+    flash('you must be logged in!','danger')
+    return redirect('/login')
+  else:
+    user = User.query.filter_by(phone=phone).first()
+    return render_template('/user.html',user=user)
+
 
 
 @app.route("/1")
