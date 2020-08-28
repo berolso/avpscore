@@ -26,9 +26,9 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            {% if 'username' in session %}
+            {% if 'phone' in session %}
             <li class="nav-item">
-              <a class="navbar-brand" href="/users/{{session['username']}}" aria-disabled="true">{{session['username']}}</a>
+              <a class="navbar-brand" href="/users/{{session['phone']}}" aria-disabled="true">{{session['phone']}}</a>
             </li>
             <a class="nav-link" href="/logout">Logout</a>
             {% else %}
