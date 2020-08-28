@@ -162,7 +162,6 @@ class User(db.Model):
     """
 
     u = User.query.filter_by(phone=phone).first()
-    print(u)
 
     if u and bcrypt.check_password_hash(u.password, pwd):
         # return user instance

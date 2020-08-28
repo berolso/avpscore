@@ -24,6 +24,11 @@ class LoginUserForm(ModelForm):
         only = ['phone', 'password']
         unique_validator = None
 
+class UpdateUserForm(ModelForm):
+    class Meta:
+        model = User
+        exclude = ['password']
+        # unique_validator = None
 
 # class NewUserForm(FlaskForm):
 #     """Form for registering new users."""

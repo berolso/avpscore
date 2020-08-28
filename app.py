@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Match, SendStatus, User
-from forms import NewUserForm, LoginUserForm
+from forms import NewUserForm, LoginUserForm, UpdateUserForm
 from polling import run_poll_avp, poll_and_merge, weekly_poll, in_progress_poll, run_poll
 import time
 from werkzeug.exceptions import Unauthorized
@@ -102,7 +102,7 @@ def logout_user():
   flash('you have logged out','success')
   return redirect('/login')
 
-@app.route('/users/<phone>')
+@app.route('/users/<int:phone>')
 def user_route(phone):
   '''show user page'''
   if 'phone' not in session:
@@ -113,7 +113,23 @@ def user_route(phone):
     user = User.query.filter_by(phone=phone).first()
     return render_template('/user.html',user=user)
 
+@app.route('/users/<int:phone>/update',methods=["GET","POST"])
+def update_user(phone):
+  '''update user'''
+  user = User.query.filter_by(phone=phone).first()
+  # verify user is logged in
+  if "phone" not in session or user.phone != session['phone']:
+    flash('you must be logged in to edit information!','danger')
+    return redirect(f'/login')
+  form = UpdateUserForm(obj=user)
+  if form.validate_on_submit():
+    form.populate_obj(user)
 
+    db.session.commit()
+
+    return redirect(f"/users/{user.phone}")
+
+  return render_template("/user_update.html", form=form)
 
 @app.route("/1")
 def test_runtime_1():

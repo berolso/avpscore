@@ -3,11 +3,11 @@ block content %}
 
 <h1>{{user.full_name}}</h1>
 
-<a href="/users/{{user.username}}/update">Update Info</a>
+<a href="/users/{{user.phone}}/update">Update Info</a>
 <ul>
   <li>{{user.phone}}</li>
   <li>{{user.email}}</li>
 </ul>
-<a href="/users/{{user.username}}/delete" class="m-3">Delete Account</a>
+<a href="/users/{{user.phone}}/delete" class="m-3">Delete Account</a>
 <div class="card m-3"></div>
 {% endblock %}
