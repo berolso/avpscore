@@ -2,9 +2,18 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import exists
 import requests
 from classified import API_AUTH_KV, PHONE_LIST, TEST_NUM
+from flask_bcrypt import Bcrypt
+from wtforms.validators import Email, NumberRange
+
 
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
+
+def connect_db(app):
+  """Connect to db"""
+  db.app = app
+  db.init_app(app)
 
 class Match(db.Model):
   """Format and store data from AVP API request."""
@@ -99,13 +108,13 @@ class SendStatus(db.Model):
         string = f'{m.team_a} {score[0][2:]} def {m.team_b} in {m.bracket}'
       if m.winner == 2:
         string = f'{m.team_b} {score[1][:-2]} def {m.team_a} in {m.bracket}' 
-      ## just me for testing
-      # r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth= classified.API_AUTH_KV, data = {'To':classified.TEST_NUM,'From':'+12513024230','Body':string})
+      # just me for testing
+      r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth= classified.API_AUTH_KV, data = {'To':classified.TEST_NUM,'From':'+12513024230','Body':string})
       
       phone_list = classified.PHONE_LIST
       # all phones 
-      for number in phone_list:
-        r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth=classified.API_AUTH_KV, data = {'To':number,'From':'+12513024230','Body':string})
+      # for number in phone_list:
+      #   r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth=classified.API_AUTH_KV, data = {'To':number,'From':'+12513024230','Body':string})
 
       # change status
       x = cls.query.get(id)
@@ -114,10 +123,58 @@ class SendStatus(db.Model):
   def __repr__(self):
     return f'< send | {self.match} | {self.has_sent} >'
 
-def connect_db(app):
-    """Connect to db"""
 
-    db.app = app
-    db.init_app(app)  
+class User(db.Model):
+  """Persistant holding table to store user information"""
+
+  __tablename__ = 'users'
+  
+  id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+  first_name = db.Column(db.String(30), nullable=False)
+  last_name = db.Column(db.String(30), nullable=False)
+  phone = db.Column(db.BigInteger, nullable=False, unique=True, info={'validators': NumberRange(min=10000000000,max=19999999999,message='must be valid 10 digit phone number beginning with 1 (15555555555)')})
+  email = db.Column(db.String, nullable=False, unique=True, info={'validators': Email()})
+  password = db.Column(db.String, nullable=False)
+
+  @property
+  def full_name(self):
+    """Return full name of user."""
+    return f"{self.first_name} {self.last_name}"
+
+  @classmethod
+  def register(cls, phone, pwd, email, first_name, last_name):
+    """Register user w/hashed password & return user."""
+
+    hashed = bcrypt.generate_password_hash(pwd)
+    # turn bytestring into normal (unicode utf8) string
+    hashed_utf8 = hashed.decode("utf8")
+
+    # return instance of user w/username and hashed pwd
+    user = cls(phone=phone, password=hashed_utf8,email=email,first_name=first_name,last_name=last_name)
+
+    return user
+
+  @classmethod
+  def authenticate(cls, phone, pwd):
+    """Validate that user exists & password is correct.
+
+    Return user if valid; else return False.
+    """
+
+    u = User.query.filter_by(phone=phone).first()
+    print(u)
+
+    if u and bcrypt.check_password_hash(u.password, pwd):
+        # return user instance
+        return u
+    else:
+        return False
+
+
+def __repr__(self):
+    return f'< user | {self.phone} | {self.email} >'
+
+
+  
 
   

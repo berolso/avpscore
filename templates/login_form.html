@@ -1,0 +1,18 @@
+<div class="container">
+  <h2>Login</h2>
+  <p class="lead">
+    Login Below. Don't have and account? <a href="/register">Register Here</a>
+  </p>
+  <form id="login-user-form" method="POST">
+    {{form.hidden_tag()}} {% for field in form if field.widget.input_type !=
+    'hidden'%}
+    <div class="form-group">
+      {{field.label(class_='form-label')}} {{field(class_='form-control')}} {%
+      for error in field.errors%}
+      <span class="text-danger">{{ error }}</span>
+      {%endfor%}
+    </div>
+    {%endfor%}
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
+</div>
