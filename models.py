@@ -107,14 +107,20 @@ class SendStatus(db.Model):
       if m.winner == 1:
         string = f'{m.team_a} {score[0][2:]} def {m.team_b} in {m.bracket}'
       if m.winner == 2:
-        string = f'{m.team_b} {score[1][:-2]} def {m.team_a} in {m.bracket}' 
+        string = f'{m.team_b} {score[1][:-2]} def {m.team_a} in {m.bracket}'
+         
       # just me for testing
-      r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth= classified.API_AUTH_KV, data = {'To':classified.TEST_NUM,'From':'+12513024230','Body':string})
+      # r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth= classified.API_AUTH_KV, data = {'To':classified.TEST_NUM,'From':'+12513024230','Body':string})
       
-      phone_list = classified.PHONE_LIST
+      # test phone list
+      # phone_list = classified.PHONE_LIST
+
+      # create and fromat list of numbers to text from User table
+      phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
+
       # all phones 
-      # for number in phone_list:
-      #   r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth=classified.API_AUTH_KV, data = {'To':number,'From':'+12513024230','Body':string})
+      for number in phone_list:
+        r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth=classified.API_AUTH_KV, data = {'To':number,'From':'+12513024230','Body':string})
 
       # change status
       x = cls.query.get(id)
