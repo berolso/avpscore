@@ -8,6 +8,14 @@ block content %}
   <li>{{user.phone}}</li>
   <li>{{user.email}}</li>
 </ul>
-<a href="/users/{{user.phone}}/delete" class="m-3">Delete Account</a>
+<form>
+  <button
+    class="btn btn-danger btn-sm"
+    formmethod="POST"
+    formaction="/users/{{ user.phone }}/delete"
+  >
+    Delete
+  </button>
+</form>
 <div class="card m-3"></div>
 {% endblock %}

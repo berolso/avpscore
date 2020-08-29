@@ -126,10 +126,30 @@ def update_user(phone):
     form.populate_obj(user)
 
     db.session.commit()
+    # update session
+    user.phone = form.phone.data
+    session['phone'] = user.phone
+    flash(f'updated {user.phone}','success')
 
     return redirect(f"/users/{user.phone}")
 
   return render_template("/user_update.html", form=form)
+
+@app.route("/users/<int:phone>/delete", methods=["POST"])
+def remove_user(phone):
+    """Remove user and redirect to login."""
+
+    if "phone" not in session or phone != session['phone']:
+      raise Unauthorized()
+
+    user = User.query.filter_by(phone=phone).first()
+    db.session.delete(user)
+    db.session.commit()
+
+    session.pop("phone")
+    flash(f'{user.full_name} - {user.phone} has been removed from the system. To continue to recieve texts you will have to create an account again','danger')
+
+    return redirect("/login")
 
 @app.route("/1")
 def test_runtime_1():
