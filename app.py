@@ -23,7 +23,7 @@ db.create_all()
 debug = DebugToolbarExtension(app)
 
 # instantiate EventTracker
-EventTracker.instantiate(21,'not_scheduled')
+EventTracker.instantiate(21,'')
 
 # start weekly poll
 weekly_poll()
@@ -156,6 +156,16 @@ def remove_user(phone):
     flash(f'{user.full_name} - {user.phone} has been removed from the system. To continue to recieve texts you will have to create an account again','danger')
 
     return redirect("/login")
+
+@app.route("/status")
+def status():
+  """display EventTracker status"""
+  jobs = run_poll.get_jobs()
+  event = EventTracker.query.get(1)
+  print(run_poll.get_jobs())
+
+  return render_template("/status.html", jobs=jobs, event=event)
+
 
 @app.route("/1")
 def test_runtime_1():

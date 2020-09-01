@@ -214,6 +214,7 @@ class EventTracker(db.Model):
       # importing from polling causes a circular imports error
       # run_poll.remove_job('in_progress')
       # print('-------- job just removed --------')
+      self.status = 'not yet scheduled'
       return 1
 
     # set status to finished and increment event_id
