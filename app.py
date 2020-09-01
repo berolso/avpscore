@@ -1,6 +1,6 @@
 from flask import Flask, redirect, render_template, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, Match, SendStatus, User
+from models import db, connect_db, Match, SendStatus, User, EventTracker
 from forms import NewUserForm, LoginUserForm, UpdateUserForm
 from polling import run_poll_avp, poll_and_merge, weekly_poll, in_progress_poll, run_poll
 import time
@@ -21,6 +21,12 @@ connect_db(app)
 db.create_all()
 
 debug = DebugToolbarExtension(app)
+
+# instantiate EventTracker
+EventTracker.instantiate(21,'not_scheduled')
+
+# start weekly poll
+weekly_poll()
 
 
 @app.errorhandler(404)

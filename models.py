@@ -4,7 +4,7 @@ import requests
 from classified import API_AUTH_KV, PHONE_LIST, TEST_NUM
 from flask_bcrypt import Bcrypt
 from wtforms.validators import Email, NumberRange
-
+# from polling import run_poll_avp, poll_and_merge, weekly_poll, in_progress_poll, run_poll
 
 
 db = SQLAlchemy()
@@ -175,10 +175,63 @@ class User(db.Model):
     else:
         return False
 
-
 def __repr__(self):
     return f'< user | {self.phone} | {self.email} >'
 
+
+class EventTracker(db.Model):
+  """Format and store data from AVP API request."""
+
+  __tablename__ = 'event_tracker'
+
+  id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+  event_id = db.Column(db.Integer, unique=True)
+  status = db.Column(db.String, nullable=True)
+
+  @classmethod
+  def instantiate(cls, event_id, status):
+    """instantiate event tracker"""
+    try:
+      event_tracker = cls(event_id=event_id, status=status)
+      db.session.add(event_tracker)
+      db.session.commit()
+    except:
+      print('EventTracker already exists')
+      db.session.rollback()
+
+  @classmethod
+  def get_event(cls):
+    """get current event from database"""
+    return cls.query.get(1)
+
+  def set_event_status(self,obj):
+    """check tournament status set current status"""
+    length = len(obj)
+    finished_count = ([match['MatchState'] for match in obj]).count('F')
+    scheduled_count = ([match['MatchState'] for match in obj]).count('S')
+
+    if not obj:
+      # importing from polling causes a circular imports error
+      # run_poll.remove_job('in_progress')
+      # print('-------- job just removed --------')
+      return 1
+
+    # set status to finished and increment event_id
+    if obj and length == finished_count:
+      self.status = 'finished'
+      self.event_id = obj[0]['EventId'] + 1
+    elif (obj and length > finished_count):
+      self.status = 'playing' 
+    elif (obj and scheduled_count > 0):
+      self.status = 'scheduled'
+      try:
+        in_progress_poll()
+        print('-------- job (in_progress) just added --------')
+      except:
+        print('-------- job (in_progress) already running --------')
+
+  def __repr__(self):
+    return f'< current event | {self.event_id} | {self.status}>'
 
   
 
