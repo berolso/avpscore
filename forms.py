@@ -2,9 +2,9 @@ from flask_wtf import FlaskForm
 from wtforms_alchemy import model_form_factory
 from models import db, User
 
-# from wtforms import StringField, IntegerField, PasswordField, TextField
+from wtforms import StringField, IntegerField, PasswordField, TextField, SubmitField
 # from wtforms.fields.html5 import URLField
-# from wtforms.validators import InputRequired, Optional,URL,NumberRange,Length
+from wtforms.validators import InputRequired, DataRequired, Optional,URL,NumberRange,Length, ValidationError, EqualTo
 
 
 BaseModelForm = model_form_factory(FlaskForm)
@@ -29,6 +29,21 @@ class UpdateUserForm(ModelForm):
         model = User
         exclude = ['password']
         # unique_validator = None
+
+class RequestResetForm(ModelForm):
+    class Meta:
+        model = User
+        only = ['email']
+        unique_validator = None
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is None:
+            raise ValidationError('There is no account with that email. You must register first.')
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',    validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')                          
 
 # class NewUserForm(FlaskForm):
 #     """Form for registering new users."""

@@ -4,7 +4,7 @@ import requests
 from classified import API_AUTH_KV, PHONE_LIST, TEST_NUM
 from flask_bcrypt import Bcrypt
 from wtforms.validators import Email, NumberRange
-# from polling import run_poll_avp, poll_and_merge, weekly_poll, in_progress_poll, run_poll
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 
 db = SQLAlchemy()
@@ -175,7 +175,20 @@ class User(db.Model):
     else:
         return False
 
-def __repr__(self):
+  def get_reset_token(self, expires_sec=1800):
+    s = Serializer('AVP_API', expires_sec)
+    return s.dumps({'user_id': self.id}).decode('utf-8')
+
+  @staticmethod
+  def verify_reset_token(token):
+    s = Serializer('AVP_API')
+    try:
+      user_id = s.loads(token)['user_id']
+    except:
+      return None
+    return User.query.get(user_id)
+
+  def __repr__(self):
     return f'< user | {self.phone} | {self.email} >'
 
 

@@ -1,11 +1,12 @@
-from flask import Flask, redirect, render_template, session, flash
+from flask import Flask, redirect, render_template, session, flash, url_for
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, Match, SendStatus, User, EventTracker
-from forms import NewUserForm, LoginUserForm, UpdateUserForm
+from models import db, connect_db, Match, SendStatus, User, EventTracker, bcrypt
+from forms import NewUserForm, LoginUserForm, UpdateUserForm, RequestResetForm, ResetPasswordForm
 from polling import run_poll_avp, poll_and_merge, weekly_poll, in_progress_poll, run_poll
 import time
 from werkzeug.exceptions import Unauthorized
 from sqlalchemy.exc import IntegrityError
+from mailer import email_password_reset, sg
 
 app = Flask(__name__)
 
@@ -27,6 +28,8 @@ EventTracker.instantiate(21,'')
 
 # start weekly poll
 weekly_poll()
+# start poll()
+in_progress_poll()
 
 
 @app.errorhandler(404)
@@ -143,19 +146,19 @@ def update_user(phone):
 
 @app.route("/users/<int:phone>/delete", methods=["POST"])
 def remove_user(phone):
-    """Remove user and redirect to login."""
+  """Remove user and redirect to login."""
 
-    if "phone" not in session or phone != session['phone']:
-      raise Unauthorized()
+  if "phone" not in session or phone != session['phone']:
+    raise Unauthorized()
 
-    user = User.query.filter_by(phone=phone).first()
-    db.session.delete(user)
-    db.session.commit()
+  user = User.query.filter_by(phone=phone).first()
+  db.session.delete(user)
+  db.session.commit()
 
-    session.pop("phone")
-    flash(f'{user.full_name} - {user.phone} has been removed from the system. To continue to recieve texts you will have to create an account again','danger')
+  session.pop("phone")
+  flash(f'{user.full_name} - {user.phone} has been removed from the system. To continue to recieve texts you will have to create an account again','danger')
 
-    return redirect("/login")
+  return redirect("/login")
 
 @app.route("/status")
 def status():
@@ -165,6 +168,43 @@ def status():
   print(run_poll.get_jobs())
 
   return render_template("/status.html", jobs=jobs, event=event)
+
+
+@app.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
+  if 'phone' in session:
+    session.pop("phone")
+    flash('you have been logged out!','danger')
+    return redirect('/login')
+  form = RequestResetForm()
+  if form.validate_on_submit():
+    user = User.query.filter_by(email=form.email.data).first()
+    response = email_password_reset(user)
+    app.logger.info("Password Reset Requested by: " + user.email)
+    app.logger.info("Response Status: " + str(response.status_code))
+    app.logger.info(response.headers)
+
+    flash('An email has been sent with instructions to reset your password.', 'info')
+    return redirect(url_for('login_user'))
+  return render_template('reset_request.html', title='Reset Password', form=form)
+
+
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_token(token):
+  if 'phone' in session:
+    session.pop("phone")
+  user = User.verify_reset_token(token)
+  if user is None:
+    flash('Using is an invalid or expired token. Request password reset again', 'warning')
+    return redirect(url_for('reset_request'))
+  form = ResetPasswordForm()
+  if form.validate_on_submit():
+    hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+    user.password = hashed_password
+    db.session.commit()
+    flash('Your password has been updated! You are now able to log in', 'success')
+    return redirect(url_for('login_user'))
+  return render_template('reset_token.html', title='Reset Password', form=form)
 
 
 @app.route("/1")

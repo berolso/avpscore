@@ -16,26 +16,37 @@
         class="navbar-toggler"
         type="button"
         data-toggle="collapse"
-        data-target="#navbarNavAltMarkup"
-        aria-controls="navbarNavAltMarkup"
+        data-target="#navbar1"
+        aria-controls="navbar1"
         aria-expanded="false"
         aria-label="Toggle navigation"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+      <div class="collapse navbar-collapse" id="navbar1">
+        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
           <li class="nav-item">
-            {% if 'phone' in session %}
-            <li class="nav-item">
-              <a class="navbar-brand" href="/users/{{session['phone']}}" aria-disabled="true">{{session['phone']}}</a>
-            </li>
-            <a class="nav-link" href="/logout">Logout</a>
-            {% else %}
-            <a class="nav-link" href="/login">Login</a>
+            <a class="nav-link" href="#"> About </a>
           </li>
-          {% endif %}
+          {% if 'phone' in session %}
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="/users/{{session['phone']}}"
+              aria-disabled="false"
+              >{{session['phone']}}</a
+            >
+          </li>
         </ul>
+        <li class="navbar-text">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+        {% else %}
+        </ul>
+        <li class="navbar-text">
+          <a class="nav-link" href="/login">Login</a>
+        </li>
+        {% endif %}
       </div>
     </nav>
 
