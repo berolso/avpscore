@@ -1,3 +1,5 @@
 /venv
 __pycache__
-classified.pysendgrid.env
+classified.py
+sendgrid.env
+.env

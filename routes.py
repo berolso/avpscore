@@ -1,30 +1,3 @@
-from flask import Flask, redirect, render_template, session, flash, url_for
-from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, Match, SendStatus, User, EventTracker, bcrypt
-from forms import NewUserForm, LoginUserForm, UpdateUserForm, RequestResetForm, ResetPasswordForm
-from polling import run_poll_avp, poll_and_merge, weekly_poll, in_progress_poll, run_poll
-import time
-from werkzeug.exceptions import Unauthorized
-from sqlalchemy.exc import IntegrityError
-from mailer import email_password_reset, sg
-
-app = Flask(__name__)
-
-app.config.from_pyfile('config.py')
-
-connect_db(app)
-db.create_all()
-
-debug = DebugToolbarExtension(app)
-
-# instantiate EventTracker
-EventTracker.instantiate(21,'')
-
-# start weekly poll
-weekly_poll()
-# start poll()
-in_progress_poll()
-
 
 @app.errorhandler(404)
 def page_not_found(e):

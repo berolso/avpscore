@@ -1,10 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import exists
 import requests
-from classified import API_AUTH_KV, PHONE_LIST, TEST_NUM
 from flask_bcrypt import Bcrypt
 from wtforms.validators import Email, NumberRange
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+import os
 
 
 db = SQLAlchemy()
@@ -110,17 +110,17 @@ class SendStatus(db.Model):
         string = f'{m.team_b} {score[1][:-2]} def {m.team_a} in {m.bracket}'
          
       # just me for testing
-      # r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth= classified.API_AUTH_KV, data = {'To':classified.TEST_NUM,'From':'+12513024230','Body':string})
+      # r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth= os.environ.get('API_AUTH_KV'), data = {'To':os.environ.get('TEST_NUM'),'From':'+12513024230','Body':string})
       
       # test phone list
-      # phone_list = classified.PHONE_LIST
+      # phone_list = os.environ.get('PHONE_LIST')
 
       # create and fromat list of numbers to text from User table
       phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
 
       # all phones 
       for number in phone_list:
-        r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth=classified.API_AUTH_KV, data = {'To':number,'From':'+12513024230','Body':string})
+        r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth=os.environ.get('API_AUTH_KV'), data = {'To':number,'From':'+12513024230','Body':string})
 
       # change status
       x = cls.query.get(id)
