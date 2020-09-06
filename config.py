@@ -4,10 +4,13 @@ from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
-SQLALCHEMY_DATABASE_URI = 'postgresql:///avp'
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+SQLALCHEMY_DATABASE_URI = os.environ.get(
+    'DATABASE_URL','postgresql:///avp')
+
+SQLALCHEMY_TRACK_MODIFICATIONS = os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS')
+# SQLALCHEMY_ECHO = os.environ.get('SQLALCHEMY_ECHO')
 SQLALCHEMY_ECHO = False
-DEBUG_TB_INTERCEPT_REDIRECTS = False
+DEBUG_TB_INTERCEPT_REDIRECTS = os.environ.get('DEBUG_TB_INTERCEPT_REDIRECTS')
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
