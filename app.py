@@ -7,6 +7,8 @@ import time
 from werkzeug.exceptions import Unauthorized
 from sqlalchemy.exc import IntegrityError
 from mailer import email_password_reset, sg
+from twilio import notify_admin_of_new_user
+import requests
 
 app = Flask(__name__)
 
@@ -71,6 +73,13 @@ def register_new():
       form.phone.errors = [e.orig.diag.message_detail]
       return render_template('/new_user.html', form=form)
     # add new user to current session
+    # send notification to admin when user signs up
+    try:
+      response = notify_admin_of_new_user(user)
+      print(response)
+    except:
+      print('not able to send text')
+
     session['phone'] = user.phone
     flash('new number added','success')
     return redirect(f'/users/{user.phone}')
@@ -243,6 +252,21 @@ def test_runtime_3():
 
 
   return render_template("/dev.html",test=test)  
+
+
+@app.route("/text")
+def test_runtime_text():
+  """Homepage."""
+  test = Match.query.order_by('match_id').all()
+  user = 'hi'
+
+  print('before')
+  response = notify_admin_of_new_user(user)
+  # print(response)
+
+
+  return render_template("/dev.html",test=test)
+
 
 
 ## debugCode

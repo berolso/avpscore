@@ -16,7 +16,6 @@ DEBUG_TB_INTERCEPT_REDIRECTS = os.environ.get('DEBUG_TB_INTERCEPT_REDIRECTS')
 SECRET_KEY = os.environ.get('SECRET_KEY')
 # SENDGRID_API_KEY=os.environ.get('SENDGRID_API_KEY')
 
-API_AUTH_KV  = os.environ.get('API_AUTH_KV')
 
 PHONE_LIST = os.environ.get('PHONE_LIST')
 
