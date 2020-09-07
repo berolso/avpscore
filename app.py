@@ -9,8 +9,11 @@ from sqlalchemy.exc import IntegrityError
 from mailer import email_password_reset, sg
 from twilio import notify_admin_of_new_user
 import requests
+from flaskext.markdown import Markdown
 
 app = Flask(__name__)
+
+Markdown(app)
 
 app.config.from_pyfile('config.py')
 
@@ -43,6 +46,14 @@ def homepage():
     return redirect('/login')
   phone = session['phone']
   return redirect(f'/users/{phone}')
+
+@app.route("/about")
+def about():
+  """about page"""
+  with open("./README.md", "r") as f: 
+    content = f.read() 
+
+  return render_template('/about.html', mkd_txt=content)
 
 @app.route('/register', methods=['GET','POST'])
 def register_new():

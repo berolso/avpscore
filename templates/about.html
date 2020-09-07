@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% block title %}About{% endblock %} {% block
+  content %}
+  
+  {{ mkd_txt|markdown }}
+  {{url_for('static', filename='./site_flow_diagram.jpg')}}
+  
+{% endblock %}
