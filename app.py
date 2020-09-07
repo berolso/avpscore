@@ -34,19 +34,15 @@ def page_not_found(e):
   # note that we set the 404 status explicitly
   return render_template('404.html'), 404
 
-@app.route("/home")
+@app.route("/")
 def homepage():
   """Homepage."""
 
   # show login if user is not
-  if 'username' not in session:
+  if 'phone' not in session:
     return redirect('/login')
-
-  # if logged in show list of all comments
-  feedback = Feedback.query.all()
-  username = session['username']
-
-  return render_template("/home.html", feedback=feedback, username=username)
+  phone = session['phone']
+  return redirect(f'/users/{phone}')
 
 @app.route('/register', methods=['GET','POST'])
 def register_new():
@@ -210,62 +206,62 @@ def reset_token(token):
   return render_template('reset_token.html', title='Reset Password', form=form)
 
 
-@app.route("/1")
-def test_runtime_1():
-  """Homepage."""
+# @app.route("/1")
+# def test_runtime_1():
+#   """Homepage."""
   
-  test = Match.query.order_by('match_id').all()
+#   test = Match.query.order_by('match_id').all()
 
-  # SendStatus.check_and_add_for_send()
-  # db.session.commit()
+#   # SendStatus.check_and_add_for_send()
+#   # db.session.commit()
 
-  try:
-    print(run_poll.get_jobs())
-    run_poll.remove_job('in_progress')
-    print(run_poll.get_jobs())
-    print('-------- job just removed --------')
-  except:
-    print(run_poll.get_jobs())
-    in_progress_poll()
-    print(run_poll.get_jobs())
-    print('-------- job just added --------')
+#   try:
+#     print(run_poll.get_jobs())
+#     run_poll.remove_job('in_progress')
+#     print(run_poll.get_jobs())
+#     print('-------- job just removed --------')
+#   except:
+#     print(run_poll.get_jobs())
+#     in_progress_poll()
+#     print(run_poll.get_jobs())
+#     print('-------- job just added --------')
 
  
-  return render_template("/dev.html", test=test, var=id)
+#   return render_template("/dev.html", test=test, var=id)
 
-@app.route("/2")
-def test_runtime_2():
-  """Homepage."""
+# @app.route("/2")
+# def test_runtime_2():
+#   """Homepage."""
 
-  test = Match.query.order_by('match_id').all()
-  run_poll.reschedule_job('in_progress', trigger='interval', seconds=1)
-
-
-  return render_template("/dev.html",test=test)  
-
-@app.route("/3")
-def test_runtime_3():
-  """Homepage."""
-
-  test = Match.query.order_by('match_id').all()
-  run_poll.reschedule_job('in_progress', trigger='interval', seconds=5)
+#   test = Match.query.order_by('match_id').all()
+#   run_poll.reschedule_job('in_progress', trigger='interval', seconds=1)
 
 
-  return render_template("/dev.html",test=test)  
+#   return render_template("/dev.html",test=test)  
+
+# @app.route("/3")
+# def test_runtime_3():
+#   """Homepage."""
+
+#   test = Match.query.order_by('match_id').all()
+#   run_poll.reschedule_job('in_progress', trigger='interval', seconds=5)
 
 
-@app.route("/text")
-def test_runtime_text():
-  """Homepage."""
-  test = Match.query.order_by('match_id').all()
-  user = 'hi'
-
-  print('before')
-  response = notify_admin_of_new_user(user)
-  # print(response)
+#   return render_template("/dev.html",test=test)  
 
 
-  return render_template("/dev.html",test=test)
+# @app.route("/text")
+# def test_runtime_text():
+#   """Homepage."""
+#   test = Match.query.order_by('match_id').all()
+#   user = 'hi'
+
+#   print('before')
+#   response = notify_admin_of_new_user(user)
+#   # print(response)
+
+
+#   return render_template("/dev.html",test=test)
 
 
 

@@ -136,9 +136,9 @@ class User(db.Model):
   __tablename__ = 'users'
   
   id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-  first_name = db.Column(db.String(30), nullable=False)
-  last_name = db.Column(db.String(30), nullable=False)
-  phone = db.Column(db.BigInteger, nullable=False, unique=True, info={'validators': NumberRange(min=10000000000,max=19999999999,message='must be valid 10 digit phone number beginning with 1 (15555555555)')})
+  first_name = db.Column(db.String(30), nullable=False, info={'label':'First Name'})
+  last_name = db.Column(db.String(30), nullable=False,info={'label':'Last Name'})
+  phone = db.Column(db.BigInteger, nullable=False, unique=True, info={'validators': NumberRange(min=10000000000,max=19999999999,message='must be valid 10 digit phone number beginning with 1 (15555555555)'),'label':'Phone Number (must begin with 1)'})
   email = db.Column(db.String, nullable=False, unique=True, info={'validators': Email()})
   password = db.Column(db.String, nullable=False)
 
