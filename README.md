@@ -22,6 +22,7 @@ passwords are encrypted with bcrypt and JWTs are used for password reset functio
 - postgresDB
 - SQLAlchemy
 - Jinja Templates
+- bootstrap
 - APScheduler
 - Twilio
 - Sendgrid

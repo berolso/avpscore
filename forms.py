@@ -5,6 +5,7 @@ from models import db, User
 from wtforms import StringField, IntegerField, PasswordField, TextField, SubmitField
 # from wtforms.fields.html5 import URLField
 from wtforms.validators import InputRequired, DataRequired, Optional,URL,NumberRange,Length, ValidationError, EqualTo
+import phonenumbers
 
 
 BaseModelForm = model_form_factory(FlaskForm)
@@ -17,6 +18,17 @@ class ModelForm(BaseModelForm):
 class NewUserForm(ModelForm):
     class Meta:
         model = User
+    def validate_phone(form, field):
+        if len(field.data) > 16:
+            raise ValidationError('Invalid phone number.')
+        try:
+            input_number = phonenumbers.parse(field.data)
+            if not (phonenumbers.is_valid_number(input_number)):
+                raise ValidationError('Invalid phone number.')
+        except:
+            input_number = phonenumbers.parse("+1"+field.data)
+            if not (phonenumbers.is_valid_number(input_number)):
+                raise ValidationError('Invalid phone number.')                   
 
 class LoginUserForm(ModelForm):
     class Meta:
@@ -28,7 +40,6 @@ class UpdateUserForm(ModelForm):
     class Meta:
         model = User
         exclude = ['password']
-        # unique_validator = None
 
 class RequestResetForm(ModelForm):
     class Meta:
@@ -43,7 +54,26 @@ class RequestResetForm(ModelForm):
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',    validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Reset Password')                          
+    submit = SubmitField('Reset Password') 
+
+
+    
+
+class RegisterForm(FlaskForm):
+    phone = StringField('Phone', validators=[DataRequired()])
+
+    def validate_phone(form, field):
+        if len(field.data) > 16:
+            raise ValidationError('Invalid phone number.')
+        try:
+            input_number = phonenumbers.parse(field.data)
+            if not (phonenumbers.is_valid_number(input_number)):
+                raise ValidationError('Invalid phone number.')
+        except:
+            input_number = phonenumbers.parse("+1"+field.data)
+            if not (phonenumbers.is_valid_number(input_number)):
+                raise ValidationError('Invalid phone number.')                         
+
 
 # class NewUserForm(FlaskForm):
 #     """Form for registering new users."""

@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, session, flash, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Match, SendStatus, User, EventTracker, bcrypt
-from forms import NewUserForm, LoginUserForm, UpdateUserForm, RequestResetForm, ResetPasswordForm
+from forms import NewUserForm, LoginUserForm, UpdateUserForm, RequestResetForm, ResetPasswordForm, RegisterForm
 from polling import run_poll_avp, poll_and_merge, weekly_poll, in_progress_poll, run_poll
 import time
 from werkzeug.exceptions import Unauthorized
@@ -274,6 +274,15 @@ def reset_token(token):
 
 #   return render_template("/dev.html",test=test)
 
+@app.route("/test", methods=['GET','POST'])
+def testform():
+  """Homepage."""
+  form = RegisterForm()
+
+  if form.validate_on_submit():
+    phone = form.phone.data
+
+  return render_template('new_user.html', form=form)
 
 
 ## debugCode
