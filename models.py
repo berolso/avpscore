@@ -137,7 +137,7 @@ class SendStatus(db.Model):
     # print('test',test)
 
     # format message string for display
-    for i in test:
+    for i in has_winner:
       id = i.match_id
       m = Match.query.get(id)
       if m.winner == 1:
@@ -169,7 +169,7 @@ class SendStatus(db.Model):
       # all phones 
       for number in phone_list:
         r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To': number,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
-        
+
       # change status
       x = cls.query.get(id)
       x.has_sent = True
