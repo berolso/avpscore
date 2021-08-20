@@ -168,9 +168,10 @@ class SendStatus(db.Model):
 
       # all phones 
       for number in phone_list:
-        r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To': number,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
-
+        r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To':number,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
         print('twilio response', r)
+        print('number', number)
+        print()
 
       # change status
       x = cls.query.get(id)
