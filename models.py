@@ -163,7 +163,8 @@ class SendStatus(db.Model):
       # phone_list = os.environ.get('PHONE_LIST')
 
       # create and fromat list of numbers to text from User table
-      phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
+      # phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
+      phone_list = ['+16196545906','+18583379195','+16198386709']
       print('list',phone_list)
 
       # all phones 
