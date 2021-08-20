@@ -171,7 +171,9 @@ class SendStatus(db.Model):
         r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To':number,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
         print('twilio response', r)
         print('number', number)
-        print()
+        print('twilio_num',twilio_num)
+        print('twilio_sid',twilio_sid)
+        print('twilio_token',twilio_token)
 
       # change status
       x = cls.query.get(id)
