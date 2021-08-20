@@ -10,6 +10,7 @@ from mailer import email_password_reset, sg
 from twilio import notify_admin_of_new_user
 import requests
 from flaskext.markdown import Markdown
+import os
 
 app = Flask(__name__)
 
@@ -23,7 +24,7 @@ db.create_all()
 debug = DebugToolbarExtension(app)
 
 # instantiate EventTracker
-EventTracker.instantiate(21,'')
+EventTracker.instantiate(os.environ.get('EVENT_NUMBER'),'')
 
 # start weekly poll
 weekly_poll()
@@ -174,10 +175,13 @@ def remove_user(phone):
 def status():
   """display EventTracker status"""
   jobs = run_poll.get_jobs()
-  event = EventTracker.query.get(1)
+  event = EventTracker.get_event()
+  send_status = SendStatus.get_all()
+  matches = Match.get_all()
   print(run_poll.get_jobs())
 
-  return render_template("/status.html", jobs=jobs, event=event)
+
+  return render_template("/status.html", jobs=jobs, event=event, send_status=send_status, matches=matches)
 
 
 @app.route("/reset_password", methods=['GET', 'POST'])

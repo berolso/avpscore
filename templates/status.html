@@ -6,16 +6,24 @@
 <!-- <a href="/users/{{jobs.phone}}/update">Update Info</a> -->
 <h3>Jobs</h3>
 <ul>
-  {%for job in jobs%}
-    <li>{{job.id}}</li>
+  {% for job in jobs %}
+  <li>{{job.id}}</li>
   {%endfor%}
 </ul>
 <h3>Current Event</h3>
 <ul>
   <li>{{event}}</li>
 </ul>
-<form>
-
-</form>
+<h3>send status</h3>
+<ul>
+  {% for status in send_status %}
+  <li>{{status}}</li>
+  {%endfor%}
+</ul>
+<ul>
+  {% for match in matches %}
+  <li>{{match}}</li>
+  {%endfor%}
+</ul>
 <div class="card m-3"></div>
 {% endblock %}

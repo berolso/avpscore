@@ -35,6 +35,26 @@ class Match(db.Model):
 
   match_sent = db.relationship('SendStatus', backref='send_status')
 
+
+  @classmethod
+  def get_all(cls):
+    """get all matches currently in tournament. ordered by matchId"""
+    return cls.query.order_by(cls.match_id).all()
+
+  @classmethod
+  def clear_matches(cls):
+    """clear Matches table"""
+    try:
+      deleted = db.session.query(cls).delete()
+      print('*********clear matches ********')
+      print(cls)
+      print(deleted)
+      print('*****************')
+      db.session.commit()
+    except:
+      db.session.rollback()
+
+
   @classmethod
   def format_response_merge(cls, obj):
     for i in obj:
@@ -81,10 +101,28 @@ class SendStatus(db.Model):
   has_sent = db.Column(db.Boolean,nullable=True,default=False)
 
   @classmethod
+  def get_all(cls):
+    """get all matches currently in send status table. ordered by matchId"""
+    return cls.query.order_by(cls.match).all()
+
+  @classmethod
+  def clear_send_status_table(cls):
+    """clear send_status table"""
+    try:
+      deleted = db.session.query(cls).delete()
+      print('******** clear send status *********')
+      print(cls)
+      print(deleted)
+      print('*****************')
+      db.session.commit()
+    except:
+      db.session.rollback()
+
+  @classmethod
   def check_and_add_for_send(cls):
     """check for data in send_status table, add if not."""
-    # filter for A)not yet in send_status table. with foreign key & B)match_state not equal to 'F' for final after match has completed. makes sure match result is still pending.
-    new_adds = Match.query.filter((Match.match_sent == None)&(Match.match_state != 'F')).all()
+    # filter for A)not yet in send_status table. with foreign key & B)match_state not equal to 'F' for final or 'C' for canceled after match has completed. makes sure match result is still pending. 'U' is for a scheduled match that hasn't begun. 'P' is for warmup
+    new_adds = Match.query.filter((Match.match_sent == None)&(Match.match_state != 'F')&(Match.match_state != 'C')).all()
     # loop to add data to for_send
     for i in new_adds:
       id = i.match_id
@@ -98,29 +136,37 @@ class SendStatus(db.Model):
   def format_and_send_message(cls):
     """Send deliver message and update status to sent."""
     # join query both tables to filter for A) message has not been sent B) winner has been decided either team A or team B. result string format is different for A or B winner.
-    has_winner = db.session.query(Match).join(cls).filter((cls.has_sent == False)&(Match.winner != None))
+    has_winner = db.session.query(Match).join(cls).filter((cls.has_sent == False)&(Match.winner != None)).all()
     # format message string for display
     for i in has_winner:
       id = i.match_id
       m = Match.query.get(id)
-      score = m.sets.split('","')
       if m.winner == 1:
-        string = f'{m.team_a} {score[0][2:]} def {m.team_b} in {m.bracket}'
+        string = f'{m.team_a} {m.sets[0]} def {m.team_b} in {m.bracket}'
       if m.winner == 2:
-        string = f'{m.team_b} {score[1][:-2]} def {m.team_a} in {m.bracket}'
-         
+        string = f'{m.team_b} {m.sets[1]} def {m.team_a} in {m.bracket}'
+      
       # just me for testing
-      # r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth= os.environ.get('API_AUTH_KV'), data = {'To':os.environ.get('TEST_NUM'),'From':'+12513024230','Body':string})
+      api_auth = os.environ.get('API_AUTH_KV')
+      twilio_sid = os.environ.get('TWILIO_ACCOUNT_SID')
+      twilio_token = os.environ.get('TWILIO_AUTH_TOKEN')
+      test_num = os.environ.get('TEST_NUM')
+      twilio_num = os.environ.get('TWILIO_NUM')
+
+      # r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth = api_auth, data = {'To': test_num,'From':twilio,'Body':string})
+
+      # twilio
+      # r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To': test_num,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
       
       # test phone list
-      # phone_list = os.environ.get('PHONE_LIST')
+      phone_list = os.environ.get('PHONE_LIST')
 
       # create and fromat list of numbers to text from User table
-      phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
+      # phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
 
       # all phones 
       for number in phone_list:
-        r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth=os.environ.get('API_AUTH_KV'), data = {'To':number,'From':'+12513024230','Body':string})
+        r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To': number,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
 
       # change status
       x = cls.query.get(id)
@@ -216,13 +262,15 @@ class EventTracker(db.Model):
   @classmethod
   def get_event(cls):
     """get current event from database"""
-    return cls.query.get(1)
+    return cls.query.first()
 
   def set_event_status(self,obj):
     """check tournament status set current status"""
     length = len(obj)
     finished_count = ([match['MatchState'] for match in obj]).count('F')
-    scheduled_count = ([match['MatchState'] for match in obj]).count('S')
+    started = ([match['MatchState'] for match in obj]).count('S')
+    canceled_count = ([match['MatchState'] for match in obj]).count('C')
+    unplayed = ([match['MatchState'] for match in obj]).count('U')
 
     if not obj:
       # importing from polling causes a circular imports error
@@ -232,12 +280,18 @@ class EventTracker(db.Model):
       return 1
 
     # set status to finished and increment event_id
-    if obj and length == finished_count:
+    print(self.event_id, 'total', length, '| S =', started, 'F =', finished_count, 'C =', canceled_count, 'U =',unplayed)
+    if obj and length == finished_count + canceled_count:
       self.status = 'finished'
+      # clear send status table
+      print('&&&&&&&&&& clear tables &&&&&&&&&&&&&&')
+      SendStatus.clear_send_status_table()
+      Match.clear_matches()
+
       self.event_id = obj[0]['EventId'] + 1
     elif (obj and length > finished_count):
       self.status = 'playing' 
-    elif (obj and scheduled_count > 0):
+    elif (obj and started > 0):
       self.status = 'scheduled'
       try:
         in_progress_poll()
