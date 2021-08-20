@@ -46,10 +46,6 @@ class Match(db.Model):
     """clear Matches table"""
     try:
       deleted = db.session.query(cls).delete()
-      print('*********clear matches ********')
-      print(cls)
-      print(deleted)
-      print('*****************')
       db.session.commit()
     except:
       db.session.rollback()
