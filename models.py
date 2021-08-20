@@ -133,8 +133,11 @@ class SendStatus(db.Model):
     """Send deliver message and update status to sent."""
     # join query both tables to filter for A) message has not been sent B) winner has been decided either team A or team B. result string format is different for A or B winner.
     has_winner = db.session.query(Match).join(cls).filter((cls.has_sent == False)&(Match.winner != None)).all()
+    # test = db.session.query(Match).join(cls).filter(Match.winner != None).all()
+    # print('test',test)
+
     # format message string for display
-    for i in has_winner:
+    for i in test:
       id = i.match_id
       m = Match.query.get(id)
       if m.winner == 1:
@@ -153,17 +156,20 @@ class SendStatus(db.Model):
 
       # twilio
       # r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To': test_num,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
-      
+
+      # print('$$$', r)
+
       # test phone list
-      phone_list = os.environ.get('PHONE_LIST')
+      # phone_list = os.environ.get('PHONE_LIST')
 
       # create and fromat list of numbers to text from User table
-      # phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
+      phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
+      print('list',phone_list)
 
       # all phones 
       for number in phone_list:
         r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To': number,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
-
+        
       # change status
       x = cls.query.get(id)
       x.has_sent = True
