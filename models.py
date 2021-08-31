@@ -1,10 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import exists
+from sqlalchemy.exc import IntegrityError
 import requests
 from flask_bcrypt import Bcrypt
 from wtforms.validators import Email, NumberRange
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import os
+# from telegram_api import Telegram_Bot
+from helpers import Helper
 
 
 db = SQLAlchemy()
@@ -29,12 +32,11 @@ class Match(db.Model):
   bracket = db.Column(db.String, nullable=True)
   team_a = db.Column(db.Text, nullable=True)
   team_b = db.Column(db.Text, nullable=True)
-  sets = db.Column(db.Text, nullable=True, )
+  sets = db.Column(db.Text, nullable=True)
   winner = db.Column(db.Integer, nullable=True)
   match_state = db.Column(db.String, nullable=True)
 
   match_sent = db.relationship('SendStatus', backref='send_status')
-
 
   @classmethod
   def get_all(cls):
@@ -50,39 +52,19 @@ class Match(db.Model):
     except:
       db.session.rollback()
 
-
   @classmethod
   def format_response_merge(cls, obj):
-    for i in obj:
-      # unique 4 digit match id from CompId and MatchNo
-      m_id = int(str(i['CompetitionId']) + str(i['MatchNo']).zfill(2))
-      # stats string. (create stats relational table in future
-      stats = str(i['Stats'])
-      # team strings
-      null_filler = 'TBD'
-      try:
-        team_a = f'''({i['TeamA']['Seed']}) {i['TeamA']['Captain']['FirstName']} {i['TeamA']['Captain']['LastName']} / {i['TeamA']['Player']['FirstName']} {i['TeamA']['Player']['LastName']}'''
-      except:
-        team_a = null_filler
-      try:
-        team_b = f'''({i['TeamB']['Seed']}) {i['TeamB']['Captain']['FirstName']} {i['TeamB']['Captain']['LastName']} / {i['TeamB']['Player']['FirstName']} {i['TeamB']['Player']['LastName']}'''
-      except:
-        team_b=null_filler
-      # Sets will parse out a string for the order of who won the set
-      try:
-        score_w_a = ', '.join([f'''{j['A']} - {j['B']}''' for j in i['Sets']])
-      except:
-        score_w_a = null_filler
+    '''parse xml file sent from avp api'''
+    for match in obj:
+      # create new match for matches table 
+      match_dict = Helper.parse_avp_match(match)
 
-      try:
-        score_w_b = ', '.join([f'''{j['B']} - {j['A']}''' for j in i['Sets']])
-      except:
-        score_w_b = null_filler
-
-      # create local database table with live data
-      new_match = cls(match_id=m_id, stats=stats,competition_id=i['CompetitionId'], competition_name=i['CompetitionName'], competition_code=i['CompetitionCode'], match_no=i['MatchNo'], bracket=i['Bracket'], team_a=team_a , team_b=team_b, sets=(score_w_a,score_w_b), winner=i['Winner'], match_state=i['MatchState'])
+      # new match by dictionary unpacking(**) match_dict
+      new_match = cls(**match_dict)
+      
       # add or replace data
       db.session.merge(new_match)
+
 
   def __repr__(self):
     return f'< match | {self.match_id} |  | {self.team_a} | {self.team_b} | {self.winner} | {self.match_sent} >'
@@ -115,10 +97,12 @@ class SendStatus(db.Model):
       db.session.rollback()
 
   @classmethod
-  def check_and_add_for_send(cls):
-    """check for data in send_status table, add if not."""
+  def find_and_add_matches(cls):
+    """check to see if any matches have not been sent, match_state is not Finished or Canceled."""
     # filter for A)not yet in send_status table. with foreign key & B)match_state not equal to 'F' for final or 'C' for canceled after match has completed. makes sure match result is still pending. 'U' is for a scheduled match that hasn't begun. 'P' is for warmup
-    new_adds = Match.query.filter((Match.match_sent == None)&(Match.match_state != 'F')&(Match.match_state != 'C')).all()
+    new_adds = Match.query.filter((Match.match_sent == None)&
+    (Match.match_state != 'F')&
+    (Match.match_state != 'C')).all()
     # loop to add data to for_send
     for i in new_adds:
       id = i.match_id
@@ -129,56 +113,18 @@ class SendStatus(db.Model):
         continue
 
   @classmethod
-  def format_and_send_message(cls):
-    """Send deliver message and update status to sent."""
+  def finished_matches(cls):
+    """find matches that have not been sent and have a winner. Format result message and add to delivery queue. update status to sent."""
     # join query both tables to filter for A) message has not been sent B) winner has been decided either team A or team B. result string format is different for A or B winner.
-    has_winner = db.session.query(Match).join(cls).filter((cls.has_sent == False)&(Match.winner != None)).all()
-    # test = db.session.query(Match).join(cls).filter(Match.winner != None).all()
-    # print('test',test)
+    finished_matches = db.session.query(Match).join(cls).filter((cls.has_sent == False)&(Match.winner != None)).all()
 
-    # format message string for display
-    for i in has_winner:
-      id = i.match_id
-      m = Match.query.get(id)
-      if m.winner == 1:
-        string = f'{m.team_a} {m.sets[0]} def {m.team_b} in {m.bracket}'
-      if m.winner == 2:
-        string = f'{m.team_b} {m.sets[1]} def {m.team_a} in {m.bracket}'
-      
-      # just me for testing
-      api_auth = os.environ.get('API_AUTH_KV')
-      twilio_sid = os.environ.get('TWILIO_ACCOUNT_SID')
-      twilio_token = os.environ.get('TWILIO_AUTH_TOKEN')
-      test_num = os.environ.get('TEST_NUM')
-      twilio_num = os.environ.get('TWILIO_NUM')
+    return finished_matches
 
-      # r = requests.post('https://api.twilio.com/2010-04-01/Accounts/AC103cc58558a9ad0a954cbc496b2daa19/Messages.json', auth = api_auth, data = {'To': test_num,'From':twilio,'Body':string})
-
-      # twilio
-      # r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To': test_num,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
-
-      # print('$$$', r)
-
-      # test phone list
-      # phone_list = os.environ.get('PHONE_LIST')
-
-      # create and fromat list of numbers to text from User table
-      # phone_list = [f'+{num.phone}' for num in db.session.query(User.phone).all()]
-      phone_list = ['+16196545906','+18583379195','+16198386709']
-      print('list',phone_list)
-
-      # all phones 
-      for number in phone_list:
-        r = requests.post(f'https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json', data = {'To':number,'From':twilio_num,'Body':string}, auth = (twilio_sid,twilio_token))
-        print('twilio response', r)
-        print('number', number)
-        print('twilio_num',twilio_num)
-        print('twilio_sid',twilio_sid)
-        print('twilio_token',twilio_token)
-
-      # change status
-      x = cls.query.get(id)
-      x.has_sent = True
+  @classmethod
+  def mark_as_sent(cls,match_id):
+    # change status
+    x = cls.query.get(match_id)
+    x.has_sent = True
 
   def __repr__(self):
     return f'< send | {self.match} | {self.has_sent} >'
@@ -289,16 +235,18 @@ class EventTracker(db.Model):
 
     # set status to finished and increment event_id
     print(self.event_id, 'total', length, '| S =', started, 'F =', finished_count, 'C =', canceled_count, 'U =',unplayed)
+
     if obj and length == finished_count + canceled_count:
       self.status = 'finished'
       # clear send status table
       print('&&&&&&&&&& clear tables &&&&&&&&&&&&&&')
       SendStatus.clear_send_status_table()
       Match.clear_matches()
-
       self.event_id = obj[0]['EventId'] + 1
+
     elif (obj and length > finished_count):
       self.status = 'playing' 
+
     elif (obj and started > 0):
       self.status = 'scheduled'
       try:
@@ -310,6 +258,53 @@ class EventTracker(db.Model):
   def __repr__(self):
     return f'< current event | {self.event_id} | {self.status}>'
 
-  
 
+class TelegramUser(db.Model):
+  """Database table to store telegram user information"""
+
+  __tablename__ = 'telegram_users'
   
+  telegram_id = db.Column(db.Integer, primary_key=True)
+  first_name = db.Column(db.String(50), nullable=False)
+  last_name = db.Column(db.String(50), nullable=False)
+
+  @property
+  def details(self):
+    """Return full name of user."""
+    return f"{self.first_name} {self.last_name} - {self.telegram_id}"
+
+  @classmethod
+  def get_all(cls):
+    """get all telegram users' id's"""
+    return cls.query.all()
+
+  @classmethod
+  def add_telegram_user(cls, telegram_id, first_name, last_name):
+    """Register user w/hashed password & return user."""
+    # return instance of telegram user
+    user = cls(telegram_id=telegram_id,first_name=first_name,last_name=last_name)
+    try:
+      db.session.merge(user)
+      db.session.commit()
+      return 'success'
+    except IntegrityError as e:
+      print(e.orig.diag.message_detail)
+      return 'error'
+
+    print('usery',user)
+
+  @classmethod
+  def remove_telegram_user(cls, id):
+    """Register user w/hashed password & return user."""
+    print('model')
+    try:
+      db.session.query(cls).filter(cls.telegram_id==id).delete()
+      print('deleted')
+      db.session.commit()
+    except IntegrityError as e:
+      print(e.orig.diag.message_detail)
+      return e.orig.diag.message_detail
+
+
+  def __repr__(self):
+    return f'< telegram_user | {self.details} >'

@@ -1,8 +1,8 @@
-from flask import Flask, redirect, render_template, session, flash, url_for
+from flask import Flask, redirect, render_template, session, flash, url_for, request
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Match, SendStatus, User, EventTracker, bcrypt
 from forms import NewUserForm, LoginUserForm, UpdateUserForm, RequestResetForm, ResetPasswordForm, RegisterForm
-from polling import run_poll_avp, poll_and_merge, weekly_poll, in_progress_poll, run_poll
+from polling import weekly_poll, in_progress_poll, run_poll, heroku_poll, start_pulse
 import time
 from werkzeug.exceptions import Unauthorized
 from sqlalchemy.exc import IntegrityError
@@ -11,6 +11,9 @@ from twilio import notify_admin_of_new_user
 import requests
 from flaskext.markdown import Markdown
 import os
+from telegram_api import bot, TelegramBot, TELEGRAM_TOKEN
+import telebot
+
 
 app = Flask(__name__)
 
@@ -21,15 +24,28 @@ app.config.from_pyfile('config.py')
 connect_db(app)
 db.create_all()
 
-debug = DebugToolbarExtension(app)
+# debug = DebugToolbarExtension(app)
 
 # instantiate EventTracker
 EventTracker.instantiate(os.environ.get('EVENT_NUMBER'),'')
 
 # start weekly poll
 weekly_poll()
-# start poll()
+# start poll
 in_progress_poll()
+# keep heroku awake
+heroku_poll()
+# hourly message to telegram to verify server is running
+start_pulse()
+
+# route to receive webhooks from telegram server
+@app.route('/telegram' + TELEGRAM_TOKEN, methods=['POST'])
+def getMessage():
+  print('request from webhook',request.get_data().decode('utf-8'))
+  json_string = request.get_data().decode('utf-8')
+  update = telebot.types.Update.de_json(json_string)
+  bot.process_new_updates([update])
+  return "!", 200
 
 
 @app.errorhandler(404)
@@ -223,36 +239,55 @@ def reset_token(token):
 
 # @app.route("/1")
 # def test_runtime_1():
-#   """Homepage."""
+#   """seed pre state. database with all matches set to pre"""
+
+#   SendStatus.clear_send_status_table()
+
+#   response = requests.get(f'https://volleyballapi.web4data.co.uk/api/matches/byevent/25')
+#   obj = response.json()
+#   Match.format_response_merge(obj)
+#   SendStatus.find_and_add_matches()
+#   finished = SendStatus.finished_matches()
+#   db.session.commit()
+
+#   new_adds = Match.query.limit(2)
+#   # loop to add data to for_send
+#   for i in new_adds:
+#     id = i.match_id
+#     try:
+#       new_for_send = SendStatus(match=id)
+#       db.session.add(new_for_send)
+#     except:
+#       continue
   
 #   test = Match.query.order_by('match_id').all()
+#   send = SendStatus.query.order_by('match').all()
 
-#   # SendStatus.check_and_add_for_send()
-#   # db.session.commit()
+#   # SendStatus.check_matches_and_add_for_send()
+#   db.session.commit()
 
-#   try:
-#     print(run_poll.get_jobs())
-#     run_poll.remove_job('in_progress')
-#     print(run_poll.get_jobs())
-#     print('-------- job just removed --------')
-#   except:
-#     print(run_poll.get_jobs())
-#     in_progress_poll()
-#     print(run_poll.get_jobs())
-#     print('-------- job just added --------')
-
- 
-#   return render_template("/dev.html", test=test, var=id)
+#   return render_template("/dev.html", test=test, send=send, var='pre')
 
 # @app.route("/2")
 # def test_runtime_2():
 #   """Homepage."""
 
-#   test = Match.query.order_by('match_id').all()
-#   run_poll.reschedule_job('in_progress', trigger='interval', seconds=1)
+#   finished = SendStatus.finished_matches()
+#   TelegramBot.send(finished)
+#   db.session.commit()
 
 
-#   return render_template("/dev.html",test=test)  
+#   return render_template("/dev.html",test=[],send=[]) 
+
+# @app.route("/3")
+# def test_runtime_3():
+#   """Homepage."""
+
+#   Match.clear_matches()
+#   SendStatus.clear_send_status_table()
+
+
+#   return render_template("/dev.html",test=[],send=[])  
 
 # @app.route("/3")
 # def test_runtime_3():
@@ -278,15 +313,15 @@ def reset_token(token):
 
 #   return render_template("/dev.html",test=test)
 
-@app.route("/test", methods=['GET','POST'])
-def testform():
-  """Homepage."""
-  form = RegisterForm()
+# @app.route("/test", methods=['GET','POST'])
+# def testform():
+#   """Homepage."""
+#   form = RegisterForm()
 
-  if form.validate_on_submit():
-    phone = form.phone.data
+#   if form.validate_on_submit():
+#     phone = form.phone.data
 
-  return render_template('new_user.html', form=form)
+#   return render_template('new_user.html', form=form)
 
 
 ## debugCode

@@ -8,6 +8,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.cron import CronTrigger
 
 from models import db, connect_db, Match, SendStatus, EventTracker
+from telegram_api import TelegramBot
 
 def run_poll_avp(event):
   """run poll function"""
@@ -21,16 +22,19 @@ def run_poll_avp(event):
 
   return res.json()
  
-# thread event cycle
+# APScheduler event cycle
 def poll_and_merge():
   print('start poll and merge')
   event = EventTracker.get_event()
   obj = run_poll_avp(event)
   Match.format_response_merge(obj)
-  SendStatus.check_and_add_for_send()
+  SendStatus.find_and_add_matches()
   # delay results
   # time.sleep(6)
-  SendStatus.format_and_send_message()
+  # 
+  finished = SendStatus.finished_matches()
+  TelegramBot.send(finished)
+  # 
   no_avp_obj = event.set_event_status(obj)
   if no_avp_obj:
     run_poll.remove_job('in_progress')
@@ -39,6 +43,12 @@ def poll_and_merge():
 
   db.session.commit()
   print('*********finished*************')
+
+def heroku_caffeine():
+  '''keep heroku from sleeping'''
+  res = requests.get('https://avp-scores.herokuapp.com/')
+  print('######## caffeine ##########',res)
+
 
 # APscheduler
 run_poll = BackgroundScheduler(daemon=True)
@@ -49,5 +59,13 @@ def weekly_poll():
   run_poll.add_job(poll_and_merge, thursday_trigger, id='weekly')
 
 def in_progress_poll():
-  progress_trigger = IntervalTrigger(seconds=2)
+  progress_trigger = IntervalTrigger(seconds=4)
   run_poll.add_job(poll_and_merge, progress_trigger, id='in_progress')
+
+def heroku_poll():
+  ping_trigger = IntervalTrigger(minutes=10)
+  run_poll.add_job(heroku_caffeine, ping_trigger, id='heroku')
+
+def start_pulse():
+  pulse_trigger = IntervalTrigger(hours=1)
+  run_poll.add_job(TelegramBot.pulse, pulse_trigger, id='pulse')
