@@ -12,9 +12,6 @@ def notify_admin_of_new_user(user):
   print(r)
   return r
 
-
-
-
       # just me for testing
       # api_auth = os.environ.get('API_AUTH_KV')
       # twilio_sid = os.environ.get('TWILIO_ACCOUNT_SID')
