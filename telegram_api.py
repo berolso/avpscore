@@ -8,12 +8,24 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 bot = telebot.AsyncTeleBot(TELEGRAM_TOKEN)
 
 print('%%%telegram%%%',TELEGRAM_TOKEN)
+print('%%%bot%%%',bot)
 
 MY_TELEGRAM = os.environ.get('MY_TELEGRAM')
 
 TELEGRAM_USER_LOG = os.environ.get('TELEGRAM_USER_LOG')
 
 TELEGRAM_FEEDBACK = os.environ.get('TELEGRAM_FEEDBACK')
+
+
+# PORT = int(os.environ.get('PORT', 5000))
+# HOST_URL = os.environ.get('HOST_URL')
+
+
+
+# bot.start_webhook(listen="0.0.0.0",
+#                           port=int(PORT),
+#                           url_path=TELEGRAM_TOKEN)
+# bot.bot.setWebhook(HOST_URL + TELEGRAM_TOKEN)
 
 # set webhook for updates instead of running bot.polling()
 bot.delete_webhook()
