@@ -34,9 +34,9 @@ weekly_poll()
 # start poll
 in_progress_poll()
 # keep heroku awake
-heroku_poll()
+# heroku_poll()
 # hourly message to telegram to verify server is running
-start_pulse()
+# start_pulse()
 
 # route to receive webhooks from telegram server
 @app.route('/telegram' + TELEGRAM_TOKEN, methods=['POST'])
