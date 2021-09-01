@@ -17,6 +17,11 @@ import telebot
 
 app = Flask(__name__)
 
+# for allowing telegram ports
+# telegram requires port 443, 80, 88 and 8443
+if __name__ == "__main__":
+    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+
 Markdown(app)
 
 app.config.from_pyfile('config.py')
@@ -34,9 +39,9 @@ weekly_poll()
 # start poll
 in_progress_poll()
 # keep heroku awake
-# heroku_poll()
+heroku_poll()
 # hourly message to telegram to verify server is running
-# start_pulse()
+start_pulse()
 
 # route to receive webhooks from telegram server
 @app.route('/telegram' + TELEGRAM_TOKEN, methods=['POST'])
