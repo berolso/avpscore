@@ -71,8 +71,8 @@ def webhook():
     print('before')
     print('bot',bot.remove_webhook)
     print('botdir',dir(bot))
-    res = bot.remove_webhook()
-    print('after',res)
+    bot.remove_webhook()
+    print('after')
     bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
     return "!", 200
 
