@@ -30,7 +30,7 @@ TELEGRAM_FEEDBACK = os.environ.get('TELEGRAM_FEEDBACK')
 # set webhook for updates instead of running bot.polling()
 # bot.delete_webhook()
 HOST_URL = os.environ.get('HOST_URL')
-bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}'')
+bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
 res = bot.get_webhook_info()
 print('webhook',res)
 
