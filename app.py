@@ -19,8 +19,8 @@ app = Flask(__name__)
 
 # for allowing telegram ports
 # telegram requires port 443, 80, 88 and 8443
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 80)))
+# if __name__ == "__main__":
+app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
 
 HOST_URL = os.environ.get('HOST_URL')
 
@@ -58,7 +58,7 @@ start_pulse()
 # route to receive webhooks from telegram server
 @app.route('/telegram' + TELEGRAM_TOKEN, methods=['POST'])
 def getMessage():
-  print('request from webhook',request)
+  print('request from webhook', request)
   json_string = request.get_data().decode('utf-8')
   print('json_string',json_string)
   update = telebot.types.Update.de_json(json_string)

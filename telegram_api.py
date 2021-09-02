@@ -150,7 +150,7 @@ class TelegramBot():
 
 # instead of webhook use constant polling.
 # had issue of polling() blocking the APScheduler. played with running multiple threads but opted for webhooks to send updates as the optimal solution
-bot.polling()
+# bot.polling()
 
 # raw api endpoint
 # https://api.telegram.org/bot<your-bot-token>/sendMessage?chat_id=<chat-id>&text=TestReply
