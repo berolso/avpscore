@@ -68,7 +68,7 @@ def getMessage():
 @app.route("/1")
 def webhook():
     bot.remove_webhook()
-    bot.set_webhook(url=HOST_URL + TELEGRAM_TOKEN)
+    bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
     return "!", 200
 
 @app.errorhandler(404)
