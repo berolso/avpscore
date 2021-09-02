@@ -24,13 +24,13 @@ if __name__ == "__main__":
 
 HOST_URL = os.environ.get('HOST_URL')
 
-print('before')
-bot.delete_webhook()
-print('after')
-HOST_URL = os.environ.get('HOST_URL')
-bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
-res = bot.get_webhook_info()
-print('webhook',res)
+# print('before')
+# bot.delete_webhook()
+# print('after')
+# HOST_URL = os.environ.get('HOST_URL')
+# bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
+# res = bot.get_webhook_info()
+# print('webhook',res)
 
 
 Markdown(app)
@@ -64,11 +64,11 @@ def getMessage():
   bot.process_new_updates([update])
   return "!", 200
 
-# @app.route("/")
-# def webhook():
-#     bot.remove_webhook()
-#     bot.set_webhook(url='https://your_heroku_project.com/' + TOKEN)
-#     return "!", 200
+@app.route("/1")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url='https://your_heroku_project.com/' + TOKEN)
+    return "!", 200
 
 @app.errorhandler(404)
 def page_not_found(e):
