@@ -20,7 +20,9 @@ app = Flask(__name__)
 # for allowing telegram ports
 # telegram requires port 443, 80, 88 and 8443
 # if __name__ == "__main__":
-app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+# app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 8443)))
+
+print('&&&&&&&&',__name__, 'ter:',__name__ == '__main__')
 
 HOST_URL = os.environ.get('HOST_URL')
 
