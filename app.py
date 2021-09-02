@@ -69,11 +69,9 @@ def getMessage():
 @app.route("/1")
 def webhook():
     print('before')
-    print('bot',bot.remove_webhook)
-    print('botdir',dir(bot))
-    bot.remove_webhook()
-    print('after')
+    # bot.remove_webhook()
     bot.set_webhook(url=f'{HOST_URL}/{TELEGRAM_TOKEN}')
+    print('after')
     return "!", 200
 
 @app.errorhandler(404)
