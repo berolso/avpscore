@@ -154,3 +154,5 @@ class TelegramBot():
 
 # raw api endpoint
 # https://api.telegram.org/bot<your-bot-token>/sendMessage?chat_id=<chat-id>&text=TestReply
+
+# https://api.telegram.org/bot<YOURTOKEN/getWebhookInfo
