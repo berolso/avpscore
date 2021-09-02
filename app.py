@@ -57,7 +57,7 @@ heroku_poll()
 start_pulse()
 
 @app.route('/2', methods=['POST'])
-def getMessage():
+def testmessage():
     print('here')
     return "!", 200
 
