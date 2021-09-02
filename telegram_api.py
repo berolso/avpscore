@@ -5,7 +5,7 @@ from helpers import Helper
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-bot = telebot.TeleBot(TELEGRAM_TOKEN)
+bot = telebot.AsyncTeleBot(TELEGRAM_TOKEN)
 
 print('%%%telegram%%%',TELEGRAM_TOKEN)
 print('%%%bot%%%',bot)
@@ -33,8 +33,8 @@ HOST_URL = os.environ.get('HOST_URL')
 # print('before')
 # # bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
 # print('after')
-# res = bot.get_webhook_info()
-# print('webhook',res)
+res = bot.get_webhook_info()
+print('webhook',res)
 
 @bot.message_handler(commands=['start'])
 def welcome_message(message):
@@ -150,7 +150,7 @@ class TelegramBot():
 
 # instead of webhook use constant polling.
 # had issue of polling() blocking the APScheduler. played with running multiple threads but opted for webhooks to send updates as the optimal solution
-# bot.polling()
+bot.polling()
 
 # raw api endpoint
 # https://api.telegram.org/bot<your-bot-token>/sendMessage?chat_id=<chat-id>&text=TestReply
