@@ -24,6 +24,7 @@ if __name__ == "__main__":
 
 HOST_URL = os.environ.get('HOST_URL')
 
+
 # print('before')
 # bot.delete_webhook()
 # print('after')
@@ -67,7 +68,7 @@ def getMessage():
 @app.route("/1")
 def webhook():
     bot.remove_webhook()
-    bot.set_webhook(url='https://your_heroku_project.com/' + TOKEN)
+    bot.set_webhook(url=HOST_URL + TELEGRAM_TOKEN)
     return "!", 200
 
 @app.errorhandler(404)
