@@ -69,7 +69,7 @@ def getMessage():
 @app.route("/1")
 def webhook():
     print('before')
-    print('bot',bot)
+    print('bot',bot.remove_webhook)
     print('botdir',dir(bot))
     res = bot.remove_webhook()
     print('after',res)
