@@ -28,7 +28,7 @@ HOST_URL = os.environ.get('HOST_URL')
 # bot.bot.setWebhook(HOST_URL + TELEGRAM_TOKEN)
 
 # set webhook for updates instead of running bot.polling()
-bot.delete_webhook()
+# bot.delete_webhook()
 HOST_URL = os.environ.get('HOST_URL')
 print('before')
 bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
