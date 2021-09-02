@@ -60,6 +60,8 @@ start_pulse()
 def testmessage():
     print('here')
     print('^^^request from webhook', request)
+    json_string = request.get_data().decode('utf-8')
+    print('json_string',json_string)
     return "!", 200
 
 # route to receive webhooks from telegram server
