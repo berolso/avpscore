@@ -19,22 +19,20 @@ app = Flask(__name__)
 
 # for allowing telegram ports
 # telegram requires port 443, 80, 88 and 8443
-if __name__ == "app":
-  print('!in!')
-  app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 443)))
+if __name__ == "__main__":
+  app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
 
-print('&&&&&&&&',__name__, 'ter:',__name__ == '__main__')
 
 HOST_URL = os.environ.get('HOST_URL')
 
 
-print('before')
-bot.delete_webhook()
-print('after')
-HOST_URL = os.environ.get('HOST_URL')
-bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
-res = bot.get_webhook_info()
-print('webhook',res)
+# print('before')
+# bot.delete_webhook()
+# print('after')
+# HOST_URL = os.environ.get('HOST_URL')
+# bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
+# res = bot.get_webhook_info()
+# print('webhook',res)
 
 
 Markdown(app)
@@ -61,7 +59,7 @@ start_pulse()
 # route to receive webhooks from telegram server
 @app.route('/telegram' + TELEGRAM_TOKEN, methods=['POST'])
 def getMessage():
-  print('request from webhook', request)
+  print('^^^request from webhook', request)
   json_string = request.get_data().decode('utf-8')
   print('json_string',json_string)
   update = telebot.types.Update.de_json(json_string)
@@ -70,7 +68,9 @@ def getMessage():
 
 @app.route("/1")
 def webhook():
-    bot.remove_webhook()
+    print('before')
+    res = bot.remove_webhook()
+    print('after',res)
     bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
     return "!", 200
 
