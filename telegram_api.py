@@ -5,7 +5,7 @@ from helpers import Helper
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-bot = telebot.TeleBot(TELEGRAM_TOKEN)
+bot = telebot.AsyncTeleBot(TELEGRAM_TOKEN)
 
 print('%%%telegram%%%',TELEGRAM_TOKEN)
 print('%%%bot%%%',bot)
