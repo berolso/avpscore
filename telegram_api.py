@@ -5,7 +5,7 @@ from helpers import Helper
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-bot = telebot.AsyncTeleBot(TELEGRAM_TOKEN)
+bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 print('%%%telegram%%%',TELEGRAM_TOKEN)
 print('%%%bot%%%',bot)
@@ -33,8 +33,8 @@ HOST_URL = os.environ.get('HOST_URL')
 # print('before')
 # # bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
 # print('after')
-# res = bot.get_webhook_info()
-# print('webhook',res)
+res = bot.get_webhook_info()
+print('webhook',res)
 
 @bot.message_handler(commands=['start'])
 def welcome_message(message):
