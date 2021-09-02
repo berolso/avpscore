@@ -56,7 +56,7 @@ heroku_poll()
 # hourly message to telegram to verify server is running
 start_pulse()
 
-@server.route('/2' methods=['POST'])
+@server.route('/2', methods=['POST'])
 def getMessage():
     print('here')
     return "!", 200
