@@ -62,7 +62,7 @@ def testmessage():
     print('^^^request from webhook', request)
     json_string = request.get_data().decode('utf-8')
     print('json_string',json_string)
-    return "!", 200
+    return json_string, 200
 
 # route to receive webhooks from telegram server
 @app.route('/' + TELEGRAM_TOKEN, methods=['POST'])
