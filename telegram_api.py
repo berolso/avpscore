@@ -31,10 +31,10 @@ HOST_URL = os.environ.get('HOST_URL')
 # bot.delete_webhook()
 HOST_URL = os.environ.get('HOST_URL')
 print('before')
-bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
+# bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
 print('after')
-res = bot.get_webhook_info()
-print('webhook',res)
+# res = bot.get_webhook_info()
+# print('webhook',res)
 
 @bot.message_handler(commands=['start'])
 def welcome_message(message):
