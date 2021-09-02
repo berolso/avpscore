@@ -57,7 +57,7 @@ heroku_poll()
 start_pulse()
 
 # route to receive webhooks from telegram server
-@app.route('/telegram' + TELEGRAM_TOKEN, methods=['POST'])
+@app.route('/' + TELEGRAM_TOKEN, methods=['POST'])
 def getMessage():
   print('^^^request from webhook', request)
   json_string = request.get_data().decode('utf-8')
