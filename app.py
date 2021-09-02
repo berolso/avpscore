@@ -59,6 +59,7 @@ start_pulse()
 @app.route('/2', methods=['POST'])
 def testmessage():
     print('here')
+    print('^^^request from webhook', request)
     return "!", 200
 
 # route to receive webhooks from telegram server
