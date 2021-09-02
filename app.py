@@ -21,20 +21,20 @@ app = Flask(__name__)
 # telegram requires port 443, 80, 88 and 8443
 if __name__ == "app":
   print('!in!')
-  app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 8443)))
+  app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 80)))
 
 print('&&&&&&&&',__name__, 'ter:',__name__ == '__main__')
 
 HOST_URL = os.environ.get('HOST_URL')
 
 
-# print('before')
-# bot.delete_webhook()
-# print('after')
-# HOST_URL = os.environ.get('HOST_URL')
-# bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
-# res = bot.get_webhook_info()
-# print('webhook',res)
+print('before')
+bot.delete_webhook()
+print('after')
+HOST_URL = os.environ.get('HOST_URL')
+bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
+res = bot.get_webhook_info()
+print('webhook',res)
 
 
 Markdown(app)
