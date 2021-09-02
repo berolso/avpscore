@@ -58,7 +58,7 @@ start_pulse()
 # route to receive webhooks from telegram server
 @app.route('/telegram' + TELEGRAM_TOKEN, methods=['POST'])
 def getMessage():
-  print('request from webhook',request.get_data().decode('utf-8'))
+  print('request from webhook',request)
   json_string = request.get_data().decode('utf-8')
   print('json_string',json_string)
   update = telebot.types.Update.de_json(json_string)
