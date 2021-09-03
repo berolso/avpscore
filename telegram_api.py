@@ -116,6 +116,7 @@ class TelegramBot():
     # Todo: modify to get specific users 
     users = TelegramUser.get_all()
     for match in finished:
+      print('*******',match)
       # format message string for display
       message = Helper.format_result_message(match)
       # send message to each user

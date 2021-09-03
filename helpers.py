@@ -43,7 +43,8 @@ class Helper():
       'bracket' : i['Bracket'],
       'team_a' : team_a,
       'team_b' : team_b,
-      'sets' : (score_w_a,'%^',score_w_b),
+      # 'sets' : (score_w_a,'%^',score_w_b),
+      'sets' : (score_w_a,score_w_b),
       'winner' : i['Winner'],
       'match_state' : i['MatchState'],
     }
@@ -58,16 +59,22 @@ class Helper():
     # HTML
     # bracket = f"<a href='https://avp.com/brackets/'>{m.bracket}</a>"
     #m.sets example ("21 - 12, 21 - 16",%^,"12 - 21, 16 - 21")
-    scores = m.sets.split('",%^,"')
+    print('mmmmmmmmmmmm',m.sets)
+    print('mmmmmmmmmmmm',type(m.sets))
+    scores = m.sets
+    # scores = m.sets.split('",%^,"')
+    # b {scores[0][2:]}
+    # a {scores[1][:-2]} 
+
     if m.winner == 1:
       return f'''{m.team_a} W 
 {m.team_b} 
-{scores[0][2:]}
+{scores[0]}
 in {bracket}'''
     if m.winner == 2:
       return f'''{m.team_b} W
 {m.team_a} 
-{scores[1][:-2]} 
+{scores[1]} 
 in {bracket}'''
     else:
       return 'no score'
