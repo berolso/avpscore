@@ -26,16 +26,6 @@ if __name__ == "__main__":
 HOST_URL = os.environ.get('HOST_URL')
 print('check this out',TELEGRAM_TOKEN, TELEGRAM_TOKEN == '1910594225:AAHfYjPSQWnrP_PsvxagDPspIszkAopHv7k')
 
-
-print('before')
-bot.delete_webhook()
-print('after')
-HOST_URL = os.environ.get('HOST_URL')
-bot.set_webhook(url=f'{HOST_URL}/{TELEGRAM_TOKEN}')
-res = bot.get_webhook_info()
-print('webhook',res)
-
-
 Markdown(app)
 
 app.config.from_pyfile('config.py')
