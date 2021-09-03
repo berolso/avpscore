@@ -20,11 +20,10 @@ app = Flask(__name__)
 # for allowing telegram ports
 # telegram requires port 443, 80, 88 and 8443
 if __name__ == "__main__":
-  app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 8443)))
+  app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 8443)),use_reloader=False)
 
 
 HOST_URL = os.environ.get('HOST_URL')
-print('check this out',TELEGRAM_TOKEN, TELEGRAM_TOKEN == '1910594225:AAHfYjPSQWnrP_PsvxagDPspIszkAopHv7k')
 
 Markdown(app)
 
@@ -47,34 +46,22 @@ heroku_poll()
 # hourly message to telegram to verify server is running
 start_pulse()
 
-@app.route('/2', methods=['POST'])
-def testmessage():
-    print('here')
-    print('^^^request from webhook', request)
-    json_string = request.get_data().decode('utf-8')
-    data = request.get_data()
-    print('data', data)
-    print('json_string',json_string, type(json_string),'after json_string')
-    return json_string, 200
-
 # route to receive webhooks from telegram server
 @app.route(f'/{TELEGRAM_TOKEN}', methods=['POST'])
 def getMessage():
-  print('^^^request', request)
   json_string = request.get_data().decode('utf-8')
-  print('json_string',json_string)
   update = telebot.types.Update.de_json(json_string)
-  print('updateeeeee', update)
   bot.process_new_updates([update])
   return "!", 200
 
-@app.route("/1")
+@app.route(f"/set/{TELEGRAM_TOKEN}")
 def webhook():
-    print('before')
-    # bot.remove_webhook()
-    bot.set_webhook(url=f'{HOST_URL}/{TELEGRAM_TOKEN}')
-    print('after')
-    return "!", 200
+  '''set webhoot after server is running'''
+  print('before')
+  bot.remove_webhook()
+  bot.set_webhook(url=f'{HOST_URL}/{TELEGRAM_TOKEN}')
+  print('after')
+  return "!", 200
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -20,22 +20,6 @@ TELEGRAM_FEEDBACK = os.environ.get('TELEGRAM_FEEDBACK')
 # PORT = int(os.environ.get('PORT', 5000))
 HOST_URL = os.environ.get('HOST_URL')
 
-
-
-# bot.start_webhook(listen="0.0.0.0",
-#                           port=int(PORT),
-#                           url_path=TELEGRAM_TOKEN)
-# bot.bot.setWebhook(HOST_URL + TELEGRAM_TOKEN)
-
-# # set webhook for updates instead of running bot.polling()
-# bot.delete_webhook()
-# HOST_URL = os.environ.get('HOST_URL')
-# print('before')
-# # bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
-# print('after')
-# res = bot.get_webhook_info()
-# print('webhook',res)
-
 @bot.message_handler(commands=['start'])
 def welcome_message(message):
   bot.send_message(message.chat.id, f"""Thanks for trying the AVP score bot. 
