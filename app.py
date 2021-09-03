@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
 
 HOST_URL = os.environ.get('HOST_URL')
-print('check this out',TELEGRAM_TOKEN, TELEGRAM_TOKEN == '1910594225:AAHfYjPSQWnrP_PsvxagDPspIszkAopHv7k', TELEGRAM_TOKEN == 1910594225:AAHfYjPSQWnrP_PsvxagDPspIszkAopHv7k)
+print('check this out',TELEGRAM_TOKEN, TELEGRAM_TOKEN == '1910594225:AAHfYjPSQWnrP_PsvxagDPspIszkAopHv7k')
 
 
 # print('before')
