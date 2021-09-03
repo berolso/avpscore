@@ -220,10 +220,16 @@ class EventTracker(db.Model):
 
   def set_event_status(self,obj):
     """check tournament status set current status"""
+    # U - scheduled
+    # C - warming up
+    # P - playing
+    # F - finished
+    # S - might not exist
     length = len(obj)
     finished_count = ([match['MatchState'] for match in obj]).count('F')
     started = ([match['MatchState'] for match in obj]).count('S')
-    canceled_count = ([match['MatchState'] for match in obj]).count('C')
+    in_progress = ([match['MatchState'] for match in obj]).count('P')
+    warm_up = ([match['MatchState'] for match in obj]).count('C')
     unplayed = ([match['MatchState'] for match in obj]).count('U')
 
     if not obj:
@@ -234,9 +240,9 @@ class EventTracker(db.Model):
       return 1
 
     # set status to finished and increment event_id
-    print(self.event_id, 'total', length, '| S =', started, 'F =', finished_count, 'C =', canceled_count, 'U =',unplayed)
+    print(self.event_id, 'total', length, '| S =', started, 'F =', finished_count, 'P =', in_progress, 'C =', warm_up, 'U =',unplayed)
 
-    if obj and length == finished_count + canceled_count:
+    if obj and length == finished_count + warm_up:
       self.status = 'finished'
       # clear send status table
       print('&&&&&&&&&& clear tables &&&&&&&&&&&&&&')

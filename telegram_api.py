@@ -119,6 +119,11 @@ class TelegramBot():
       print('*******',match)
       # format message string for display
       message = Helper.format_result_message(match)
+      
+      # send to just me
+      # bot.send_message(MY_TELEGRAM, message, parse_mode='MARKDOWN',disable_web_page_preview=True)
+      # SendStatus.mark_as_sent(match.match_id)
+
       # send message to each user
       for user in users:
         bot.send_message(user.telegram_id, message, parse_mode='MARKDOWN',disable_web_page_preview=True)
