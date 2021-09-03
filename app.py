@@ -31,7 +31,7 @@ print('before')
 bot.delete_webhook()
 print('after')
 HOST_URL = os.environ.get('HOST_URL')
-bot.set_webhook(url=f'{HOST_URL}/telegram{TELEGRAM_TOKEN}')
+bot.set_webhook(url=f'{HOST_URL}/{TELEGRAM_TOKEN}')
 res = bot.get_webhook_info()
 print('webhook',res)
 
