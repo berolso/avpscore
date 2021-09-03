@@ -7,9 +7,6 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
 bot = telebot.AsyncTeleBot(TELEGRAM_TOKEN)
 
-print('%%%telegram%%%',TELEGRAM_TOKEN)
-print('%%%bot%%%',bot)
-
 MY_TELEGRAM = os.environ.get('MY_TELEGRAM')
 
 TELEGRAM_USER_LOG = os.environ.get('TELEGRAM_USER_LOG')
