@@ -25,6 +25,7 @@ if __name__ == "__main__":
 
 HOST_URL = os.environ.get('HOST_URL')
 print('check this out',TELEGRAM_TOKEN, TELEGRAM_TOKEN == '1910594225:AAHfYjPSQWnrP_PsvxagDPspIszkAopHv7k')
+   '1910594225:AAHfYjPSQWnrP_PsvxagDPspIszkAopHv7k'
 
 
 # print('before')
@@ -68,7 +69,7 @@ def testmessage():
     return json_string, 200
 
 # route to receive webhooks from telegram server
-@app.route('/' + TELEGRAM_TOKEN, methods=['POST'])
+@app.route('/' + '1910594225:AAHfYjPSQWnrP_PsvxagDPspIszkAopHv7k', methods=['POST'])
 def getMessage():
   print('^^^request from webhook', request)
   json_string = request.get_data().decode('utf-8')
