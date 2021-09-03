@@ -17,10 +17,10 @@ import telebot
 
 app = Flask(__name__)
 
-# for allowing telegram ports
+# for allowing telegram ports in localhost flask app. this doesn't matter with heroku deployment
 # telegram requires port 443, 80, 88 and 8443
-# if __name__ == "__main__":
-#   app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 8443)),use_reloader=False)
+if __name__ == "__main__":
+  app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 8443)),use_reloader=False)
 
 
 HOST_URL = os.environ.get('HOST_URL')
