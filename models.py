@@ -224,13 +224,11 @@ class EventTracker(db.Model):
     # C - warming up
     # P - playing
     # F - finished
-    # S - might not exist
     length = len(obj)
     finished_count = ([match['MatchState'] for match in obj]).count('F')
-    started = ([match['MatchState'] for match in obj]).count('S')
     in_progress = ([match['MatchState'] for match in obj]).count('P')
     warm_up = ([match['MatchState'] for match in obj]).count('C')
-    unplayed = ([match['MatchState'] for match in obj]).count('U')
+    scheduled = ([match['MatchState'] for match in obj]).count('U')
 
     if not obj:
       # importing from polling causes a circular imports error
@@ -240,9 +238,11 @@ class EventTracker(db.Model):
       return 1
 
     # set status to finished and increment event_id
-    print(self.event_id, 'total', length, '| S =', started, 'F =', finished_count, 'P =', in_progress, 'C =', warm_up, 'U =',unplayed)
+    print(self.event_id, 'total', length, 'F =', finished_count, 'P =', in_progress, 'C =', warm_up, 'U =',scheduled)
 
-    if obj and length == finished_count + warm_up:
+    finished_finals = [m['Bracket'] for m in obj if m['Bracket'] == 'Finals' and m['MatchState'] == 'F']
+
+    if len(finished_finals) == 2:
       self.status = 'finished'
       # clear send status table
       print('&&&&&&&&&& clear tables &&&&&&&&&&&&&&')
@@ -253,7 +253,7 @@ class EventTracker(db.Model):
     elif (obj and length > finished_count):
       self.status = 'playing' 
 
-    elif (obj and started > 0):
+    elif (obj and scheduled > 0):
       self.status = 'scheduled'
       try:
         in_progress_poll()

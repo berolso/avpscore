@@ -67,5 +67,5 @@ def heroku_poll():
   run_poll.add_job(heroku_caffeine, ping_trigger, id='heroku')
 
 def start_pulse():
-  pulse_trigger = IntervalTrigger(hours=1)
+  pulse_trigger = IntervalTrigger(weeks=1)
   run_poll.add_job(TelegramBot.pulse, pulse_trigger, id='pulse')
