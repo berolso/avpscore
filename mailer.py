@@ -5,21 +5,23 @@ import os
 
 
 # blog
-sg = sendgrid.SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+sg = sendgrid.SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
+
 
 def email_password_reset(user):
-  token = user.get_reset_token()
-  print(token)
-  subject = "AVP Scores Reset Your Password"
-  # from_email = Email(app.config['ADMINS'][0])
-  from_email = Email('willakenz@gmail.com')
-  to_email = To([user.email][0])
-  html_body = render_template('reset_passwordz.html', user=user, token=token)
+    token = user.get_reset_token()
+    print(token)
+    subject = "AVP Scores Reset Your Password"
+    # from_email = Email(app.config['ADMINS'][0])
+    from_email = Email("willakenz@gmail.com")
+    to_email = To([user.email][0])
+    html_body = render_template("reset_passwordz.html", user=user, token=token)
 
-  content = Content("text/html", html_body)
-  mail = Mail(from_email, to_email, subject, content)
-  response = sg.send(mail)
-  return response
+    content = Content("text/html", html_body)
+    mail = Mail(from_email, to_email, subject, content)
+    response = sg.send(mail)
+    return response
+
 
 # vid (https://www.youtube.com/watch?v=vutyTx7IaAI)(https://github.com/CoreyMSchafer/code_snippets/blob/master/Python/Flask_Blog/10-Password-Reset-Email/flaskblog/routes.py)
 # uses flask mail instead of sendgrid
@@ -32,9 +34,6 @@ def email_password_reset(user):
 # If you did not make this request then simply ignore this email and no changes will be made.
 # '''
 #   mail.send(msg)
-
-
-
 
 
 # for test
