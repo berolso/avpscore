@@ -105,7 +105,7 @@ def watch(message):
     keyboard = telebot.types.InlineKeyboardMarkup()
     keyboard.add(
         telebot.types.InlineKeyboardButton(
-            "Watch live", url="www.peacocktv.com/watch/sports/highlights/"
+            "Watch live", url="https://www.youtube.com/avpbeach"
         )
     )
 
